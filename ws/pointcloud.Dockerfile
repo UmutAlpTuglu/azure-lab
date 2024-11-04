@@ -2,6 +2,7 @@
 # docker build -t pointcloud_detection -f pointcloud.Dockerfile .
 # docker run --rm -it pointcloud_detection /bin/bash
 #inside container: ros2 pkg list | grep pointcloud_detection
+#inside container ros2 topic pub /pointcloud sensor_msgs/msg/PointCloud2 "{header: {frame_id: 'map'}, height: 1, width: 1, fields: [], is_bigendian: false, point_step: 1, row_step: 1, data: [0], is_dense: false}"
 
 FROM ros:iron-ros-base
 

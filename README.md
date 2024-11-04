@@ -8,13 +8,17 @@ If not available already, install the following:
 - [K3D](https://k3d.io/v5.6.0/#installation)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [helm](https://helm.sh/docs/intro/install/)
+- [azure cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
 
 ## Repo structure
 
-There is a [ros 2 pointcloud dummy package](ws/src/pointcloud_detection) inside ws folder. When you open this folder the entire dev docker environment is configured in [.devcontainer](ws/.devcontainer/) and can be used via `Dev Containers` Extensions in vscode. Debugging setup can also be found inside [.vscode](ws/.vscode/). 
+### Pointcloud ROS app
 
-The entire application and build pipeline is developed in the [orchestration-lab](https://github.com/UmutAlpTuglu/orchestration-lab) repo and the newest image version gets automatically pushed to a public Docker Hub repo, which is configured in mentioned repo. 
-This image is also referenced in the [Pointcloud Helm package](ws/src/pointcloud-detection-helm) and can be tested in a simple k3d setup with [Dummy publisher](ws/src/ros_pub_sub.yaml).
+There is a [ros 2 pointcloud dummy package](ws/src/pointcloud_detection) inside ws folder. When you open this folder in vscode the entire dev docker environment is configured in [.devcontainer](ws/.devcontainer/) and can be used via `Dev Containers` Extensions in vscode. Debugging setup can also be found inside [.vscode](ws/.vscode/).
+
+In the [ros package folder](ws/src/pointcloud_detection) you can find the entire package setup and how to test the code can be found as comments at the top of this [file](ws/src/pointcloud_detection/pointcloud_detection/pointcloud_detection.py). You can test the application in the docker development environment with three terminals, or you can build the [pointcloud.Dockerfile image](ws/pointcloud.Dockerfile) locally or you can run it via the [CI ros build pipeline](.github/workflows/ros_build.yml), which just builds the package and pushes it to a public ocker Hub image registry. Its triggered when one of the crucial files is changed and there is a push to the main branch. So any code changes relative to the python code, the dockerfile or the CI pipeline creates a new image pushed to Docker Hub.
+
+This image is also referenced in the [Pointcloud Helm Chart](ws/src/pointcloud-detection-helm) and can be tested in a simple k3d setup with a [Dummy ROS publisher](ws/src/ros_pub_sub.yaml).
 
 Create local cluster, install helm release and test application with dummy ros-publisher:
 ```shell
@@ -27,7 +31,6 @@ And then check logs before and after of ros pointcloud publisher:
 ```shell
 kubectl logs -f "pod name of ros app"
 ```
-
 
 ## Next steps
 
