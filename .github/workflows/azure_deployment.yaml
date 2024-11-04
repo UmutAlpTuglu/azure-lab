@@ -1,0 +1,146 @@
+# insane CI/CD pipeline, pushes to docker registry, creates secrets and deploys via raw yaml to cluster
+# is not configured yet, need to create azure credentials and set all other secrets in github,
+# and create container registry and super cheap AKS cluster via terraform to practice 
+
+on:
+  push:
+    tags:        
+      - '*'
+
+name: Deploy to azure
+
+env:
+  APP_NAME: test-app
+  SECRET_NAME: test-secret
+
+
+jobs:
+  get_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.get_tag.outputs.tag_name }}
+    steps:
+      - name: Get tag name
+        id: get_tag
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+  build-test-and-push:
+    needs: get_tag
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    # Setup incuding Azure login 
+
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@main
+    - name: 'Print tag name'
+      run: echo "RELEASE_VERSION=${{ needs.get_tag.outputs.release_version }}" >> $GITHUB_ENV
+    - name: 'Debug Print'
+      run: echo tag version is ${{ env.RELEASE_VERSION }}  
+    - name: 'Create env file'
+      run: |
+        echo "${{ secrets.ENV_FILE }}" > .env
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: "${{ secrets.AZURE_CREDENTIALS }}"        
+
+    # CI pipeline: login, build, test, push image to container registry
+
+    - name: 'Login to container registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - name: 'Build image'
+      run: docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }} -f prod.Dockerfile .
+    # - name: 'Test image'
+    #   run: sh docker_test.sh .env ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
+    - name: 'Push image'
+      run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}
+
+  deploy:
+    needs: [get_tag, build-test-and-push]
+    runs-on: ubuntu-latest
+
+    steps:
+    
+    # Setup for CI and CD pipelines incuding Azure login 
+
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@main
+    - name: 'Print tag name'
+      run: echo "RELEASE_VERSION=${{ needs.get_tag.outputs.release_version }}" >> $GITHUB_ENV
+    - name: 'Debug Print'
+      run: echo tag version is ${{ env.RELEASE_VERSION }}        
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: "${{ secrets.AZURE_CREDENTIALS }}"        
+
+    # CD pipeline: deploy to azure kubernetes service with secrets and manifests
+    
+    - name: 'Setup kubectl'
+      id: install-kubectl
+      uses: azure/setup-kubectl@v3
+    - name: 'Set AKS context'
+      id: set-context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: '${{ secrets.RESOURCE_GROUP }}' 
+        cluster-name: '${{ secrets.CLUSTER_NAME }}'
+    
+        
+    - name: 'Check and Create Secret for this repo'
+      run: | 
+        if kubectl get secret ${{ env.SECRET_NAME }} >/dev/null 2>&1; 
+        then 
+          echo "Secret already exists" 
+        else 
+          echo "Secret does not exist, creating secret..." 
+          kubectl create secret generic ${{ env.SECRET_NAME }} \
+              --from-literal=test_HOST="$(echo -n "${{ secrets.test_HOST }}")" \
+              --from-literal=test_USER="$(echo -n "${{ secrets.test_USER }}")" \
+              --from-literal=test_PASSWORD="$(echo -n "${{ secrets.test_PASSWORD }}")" \
+              --from-literal=test_PORT="$(echo -n "${{ secrets.test_PORT }}")" \
+              --from-literal=POSTGRES_HOST="$(echo -n "${{ secrets.POSTGRES_HOST }}")" \
+              --from-literal=POSTGRES_PORT="$(echo -n "${{ secrets.POSTGRES_PORT }}")" \
+              --from-literal=POSTGRES_USER="$(echo -n "${{ secrets.POSTGRES_USER }}")" \
+              --from-literal=POSTGRES_PASSWORD="$(echo -n "${{ secrets.POSTGRES_PASSWORD }}")" ;
+        fi
+
+    - name: 'Deploy Application in AKS'      
+      run: |
+        cat <<EOF | kubectl apply -f -
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: '${{ env.APP_NAME }}'
+        spec:
+          selector:
+            matchLabels:
+              app: '${{ env.APP_NAME }}-label'
+          replicas: 1
+          template:
+            metadata:
+              labels:
+                app: '${{ env.APP_NAME }}-label'
+            spec:
+              containers:
+                - name: '${{ env.APP_NAME }}-container'
+                  image: '${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.APP_NAME }}:${{ env.RELEASE_VERSION }}'
+                  imagePullPolicy: Always
+                  envFrom:
+                  - secretRef:
+                      name: '${{ env.SECRET_NAME }}'
+                  resources:
+                    limits:
+                      cpu: 200m
+                      memory: 200Mi
+                    requests:
+                      cpu: 200m
+                      memory: 150Mi
+              restartPolicy: Always
+        EOF

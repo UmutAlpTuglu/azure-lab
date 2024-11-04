@@ -1,14 +1,16 @@
 name: ROS2 Docker Build and Push
 
 # this pipeline and code changes get triggered in orchestration-lab repo
-# on:
-#   push:
-#     branches:
-#       - main
-#     paths:
-#       - 'ws/src/pointcloud_detection/**'
-#       - 'ws/pointcloud.Dockerfile'
-#       - '.github/workflows/ros_build.yml'
+#TODO: In this repo the secrets need to be added, everything is configured and works fine in orchestration-lab
+# this action is manually disabled right now under actions section in github 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ws/src/pointcloud_detection/**'
+      - 'ws/pointcloud.Dockerfile'
+      - '.github/workflows/ros_build.yml'
 
 env:
   APP_NAME: pointcloud_detection
