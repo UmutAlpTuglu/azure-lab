@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: 0.9.14
+# dependencies:
+# - condition: 
+#   name: 
+#   repository: 
+#   version: 
+description: Helm chart for point cloud pointcloud detection dummy
+home: https://example.com
+icon: https://example.com/icon.png
+maintainers:
+- email: "dont mail me"
+  name: Umut Tuglu
+name: pointcloud-detection-helm
+type: application
+version: 0.1.0

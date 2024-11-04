@@ -1,0 +1,27 @@
+{{/*
+The content of this file gets displayed when a user runs helm install.
+Since this file also goes through the rendering engine, the usual Helm templating features may be used.
+You should keep it brief, only give the necessary information on the following aspects:
+- Chart Info (Name, Version, etc.)
+- Release Info (Name, Namespace, etc.)
+- Instructions on how to learn more about the Release
+*/}}
+Thank you for installing {{ .Chart.Name }}:{{ .Chart.Version }} .
+
+Your release is named {{ .Release.Name }} and can be found in the {{ .Release.Namespace }} namespace.
+
+To learn more about the release, try:
+
+  $ helm -n {{ .Release.Namespace }} status {{ .Release.Name }}
+  $ helm -n {{ .Release.Namespace }} get all {{ .Release.Name }}
+
+To uninstall, use:
+
+  $ helm -n {{ .Release.Namespace }} uninstall {{ .Release.Name }}
+
+Keep in mind that the namespace still exists afterwards and some types of components (persistent volumes, configmaps, secrets) may be left untouched.
+
+In case of issues, bugs or questions, you can contact the following people:
+{{ range .Chart.Maintainers }}
+- {{ .Name }} < {{ .Email }} >
+{{ end }}

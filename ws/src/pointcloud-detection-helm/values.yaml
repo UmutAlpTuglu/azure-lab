@@ -1,0 +1,133 @@
+# Default values for your chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ut4321/pointcloud_detection # public DH registry 
+  pullPolicy: IfNotPresent# Default values for your chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ut4321/pointcloud_detection # public docker hub registry 
+  pullPolicy: IfNotPresent
+  tag: "latest" # Overrides the image tag whose default is the chart appVersion.
+  tagDefault: "stable" # Sets the default tag which is used if tag is not set explicitly
+
+commandOverride: ["/bin/bash", "-c", "source install/setup.bash && ros2 launch pointcloud_detection pointcloud_detection.launch.py params:=/mounted_config/params.ros2.yaml"] # Overrides the entrypoint of the main container
+argsOverride: [] # Supplies additional arguments to the default or overridden entrypoint
+
+registryCredentials:
+  registry: ""
+  username: ""
+  password: "" # Deploy or access token can be used instead
+  email: "" # Optional
+
+configMapSuffix: "vehicle"
+
+config:
+  pointcloud_detection:
+    ros__parameters:
+      test: 3.1
+      subscribed_pointcloud_name: "pointcloud"
+
+
+volumes:
+  - name: pointcloud-detection-volume
+    configMap:
+      name: pointcloud-detection-configmap-{{ .Values.configMapSuffix }}
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+
+volumeMounts:
+  - name: pointcloud-detection-volume
+    mountPath: /mounted_config
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+# Dependencies
+ika-helm-helpers:
+  enabled: true
+
+  tag: "latest" # Overrides the image tag whose default is the chart appVersion.
+  tagDefault: "stable" # Sets the default tag which is used if tag is not set explicitly
+
+commandOverride: ["/bin/bash", "-c", "source install/setup.bash && ros2 launch pointcloud_detection pointcloud_detection.launch.py params:=/mounted_config/params.ros2.yaml"] # Overrides the entrypoint of the main container
+argsOverride: [] # Supplies additional arguments to the default or overridden entrypoint
+
+registryCredentials:
+  registry: ""
+  username: ""
+  password: "" # Deploy or access token can be used instead
+  email: "" # Optional
+
+configMapSuffix: "vehicle"
+
+config:
+  pointcloud_detection:
+    ros__parameters:
+      test: 3.1
+      subscribed_pointcloud_name: "pointcloud"
+
+
+volumes:
+  - name: pointcloud-detection-volume
+    configMap:
+      name: pointcloud-detection-configmap-{{ .Values.configMapSuffix }}
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+
+volumeMounts:
+  - name: pointcloud-detection-volume
+    mountPath: /mounted_config
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

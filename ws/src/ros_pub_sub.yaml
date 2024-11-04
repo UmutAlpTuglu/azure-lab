@@ -1,0 +1,30 @@
+# kubectl apply -f ros_pub_sub.yaml
+# kubectl delete -f ros_pub_sub.yaml 
+# this is to test the pointcloud-detection-helm chart, publishes pointclouds and subs detected objects
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pub-sub
+  labels:
+    app: pub-sub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pub-sub
+  template:
+    metadata:
+      labels:
+        app: pub-sub
+    spec:
+      containers:
+      - name: pointcloud-publisher
+        image: ros:humble-ros-base
+        command: ["/bin/bash", "-c"]
+        args: ["source /opt/ros/humble/setup.bash && ros2 topic pub /pointcloud sensor_msgs/msg/PointCloud2 '{header: {frame_id: 'map'}, height: 1, width: 1, fields: [], is_bigendian: false, point_step: 1, row_step: 1, data: [0], is_dense: false}' -r 1"]
+      # containers:
+      # - name: objects-sub
+      #   image: ros:humble-ros-base
+      #   command: ["/bin/bash", "-c"]
+      #   args: ["source install/setup.bash && ros2 topic echo /detected_objects"]
+      # does not know detected_objects because it is a custom message type defined in pointcloud_detection message
