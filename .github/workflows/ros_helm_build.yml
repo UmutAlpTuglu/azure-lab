@@ -29,11 +29,12 @@ jobs:
       - name: Get Chart Version
         id: chart_version
         run: |
-          echo "CHART_VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)" >> $GITHUB_ENV
+          CHART_VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)
+          echo "CHART_VERSION=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Debug Version
         run: |
-          echo "Version set to: ${{ env.CHART_VERSION }}"
+          echo "Version is: ${{ steps.set_version.outputs.CHART_VERSION }}"
 
       - name: Helm ACR Login
         run: |
@@ -49,4 +50,4 @@ jobs:
       - name: Push Helm Chart
         run: |
           cd ${{ env.HELM_CHART_PATH }}
-          helm push pointcloud-detection-helm-${{ env.CHART_VERSION }}.tgz oci://${{ secrets.ACR_FULL_NAME }}/helm
+          helm push pointcloud-detection-helm-${{ steps.set_version.outputs.CHART_VERSION }}.tgz oci://${{ secrets.ACR_FULL_NAME }}/helm
