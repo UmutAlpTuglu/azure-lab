@@ -1,8 +1,5 @@
 name: ROS2 Docker Build and Push
 
-# this pipeline and code changes get triggered in orchestration-lab repo
-#TODO: In this repo the secrets need to be added, everything is configured and works fine in orchestration-lab
-# this action is manually disabled right now under actions section in github 
 on:
   push:
     branches:
