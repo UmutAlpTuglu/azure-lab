@@ -1,3 +1,8 @@
+# SECRETS in GitHub:
+# DOCKERHUB_USERNAME
+# DOCKERHUB_TOKEN
+# DOCKERHUB_REGISTRY
+
 name: ROS2 Docker Build and Push
 
 on:

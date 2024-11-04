@@ -9,6 +9,7 @@ If not available already, install the following:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [helm](https://helm.sh/docs/intro/install/)
 - [azure cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt)
+- [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 ## Repo structure
 
@@ -32,12 +33,46 @@ And then check logs before and after of ros pointcloud publisher:
 kubectl logs -f "pod name of ros app"
 ```
 
+### Pipelines
+
+#### ros_docker_build.yml
+
+- self explanatory: builds the docker ros image and pushes it to a public Docker Hub image registry
+
+#### ros_helm_build.yml
+
+The goal is to create Azure Container Registry as a registry for Helm charts with the `oci://` scheme. For that first create a container registry with a basic plan (cheapest option). 
+Before deep diving into the pipeline, lets test this setup locally:
+1. The [azure service principal script](azure/ACR_Helm_setup.sh) creates service principal logins which are outputed to the terminal. In the top of the script you can need to set your resource group, registry name in azure and subscription ID and then execute script and then copy ID and password from terminal
+2. Login to ACR via helm:
+```shell
+helm registry login <REGISTRY_NAME>.azurecr.io --username <SP_PUSH_ID> --password <SP_PUSH_PASSWORD>
+``` 
+3. package and push the image:
+```shell
+helm package ws/src/pointcloud-detection-helm/
+helm push pointcloud-detection-helm-0.1.0.tgz oci://<REGISTRY_NAME>.azurecr.io/helm
+```
+4. Pull to test if it worked
+```shell
+helm pull oci://<REGISTRY_NAME>.azurecr.io/helm/pointcloud-detection-helm --version 0.1.0
+```
+
+
+
+
 ## Next steps
 
-- create container registry and super cheap AKS cluster via terraform to practice
+- create super cheap AKS cluster via terraform to practice
 - create CI build github actions pipeline which pushes automatically when helm repo is updated to azure container registry
 - configure azure_deployment.yaml to work with ros image
 - configure azure_deployment.yaml to work with helm images which are pushed there by CI helm pipeline
-- compare CD deployment pipelines to ArgoCD
+- compare CD deployment pipelines to ArgoCD, CI can stay
   - because github actions has no idea what the state of the cluster is, it just deploys but does not know if resource was manually modified or removed
     - Argo/Flux ensure that the state of cluster matches with repo at all times 
+      - Terraform in comparision is not aware of application health
+        - Flux and Argo are better suited for continuous delivery as they have schedulers to detect changes and drift. For example of someone goes in and scales a deployment from 1 to 2. Flux will go in and change it back. Terraform won't detect this until you apply which in an automated fashion won't happen until the next commit/git trigger configured. 
+
+- `optimal setup`:
+  - github actions for CI pipelines like pushing images and helm packages to docker hub or azure container registry
+  - ArgoCD for managing CD part with 

@@ -1,0 +1,48 @@
+name: Helm Chart CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ws/src/pointcloud-detection-helm/**'
+
+env:
+  HELM_CHART_PATH: ws/src/pointcloud-detection-helm
+
+jobs:
+  build-and-push-helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4.2.0
+        id: install
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Chart Version
+        id: chart_version
+        run: |
+          VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | awk '{print $2}')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: ACR Login
+        run: |
+          helm registry login ${{ secrets.ACR_FULL_NAME }} \
+            --username ${{ secrets.ACR_PUSH_USERNAME }} \
+            --password ${{ secrets.ACR_PUSH_PASSWORD }}
+
+      - name: Package Helm Chart
+        run: |
+          cd ${{ env.HELM_CHART_PATH }}
+          helm package .
+
+      - name: Push Helm Chart
+        run: |
+          cd ${{ env.HELM_CHART_PATH }}
+          helm push pointcloud-detection-helm-${{ steps.chart_version.outputs.version }}.tgz oci://${{ secrets.ACR_FULL_NAME }}/helm

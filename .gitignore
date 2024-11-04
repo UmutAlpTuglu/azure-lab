@@ -171,6 +171,9 @@ ws/build/
 ws/install/
 ws/log/
 
+# helm package
+*.tgz
+
 # Python related
 **/*.py[cod]
 **/__pycache__/
