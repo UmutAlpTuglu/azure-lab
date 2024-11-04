@@ -29,11 +29,13 @@ jobs:
       - name: Get Chart Version
         id: chart_version
         run: |
-          VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)
-          echo "Version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "CHART_VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)" >> $GITHUB_ENV
 
-      - name: ACR Login
+      - name: Debug Version
+        run: |
+          echo "Version set to: ${{ env.CHART_VERSION }}"
+
+      - name: Helm ACR Login
         run: |
           helm registry login ${{ secrets.ACR_FULL_NAME }} \
             --username ${{ secrets.ACR_PUSH_USERNAME }} \
