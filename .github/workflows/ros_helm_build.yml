@@ -31,7 +31,7 @@ jobs:
         run: |
           VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)
           echo "Version: $VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: ACR Login
         run: |
@@ -47,4 +47,4 @@ jobs:
       - name: Push Helm Chart
         run: |
           cd ${{ env.HELM_CHART_PATH }}
-          helm push pointcloud-detection-helm-${{ steps.chart_version.outputs.version }}.tgz oci://${{ secrets.ACR_FULL_NAME }}/helm
+          helm push pointcloud-detection-helm-${{ env.CHART_VERSION }}.tgz oci://${{ secrets.ACR_FULL_NAME }}/helm
