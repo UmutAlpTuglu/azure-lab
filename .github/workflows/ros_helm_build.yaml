@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'ws/src/pointcloud-detection-helm/**'
+      - '.github/workflows/ros_helm_build.yml'
 
 env:
   HELM_CHART_PATH: ws/src/pointcloud-detection-helm
@@ -28,8 +29,9 @@ jobs:
       - name: Get Chart Version
         id: chart_version
         run: |
-          VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | awk '{print $2}')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2)
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: ACR Login
         run: |
