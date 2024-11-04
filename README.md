@@ -58,7 +58,7 @@ helm push pointcloud-detection-helm-0.1.0.tgz oci://<REGISTRY_NAME>.azurecr.io/h
 helm pull oci://<REGISTRY_NAME>.azurecr.io/helm/pointcloud-detection-helm --version 0.1.0
 ```
 
-
+The pipeline combines the first three steps, but before it logs in with [connection-json](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret). Create the needed secrets and the pipeline even fetches the newest chart version. If there are changes to the helm chart, you should change chart version in [Chart.yaml](ws/src/pointcloud-detection-helm/Chart.yaml) so a new package appears in container registry. 
 
 
 ## Next steps
