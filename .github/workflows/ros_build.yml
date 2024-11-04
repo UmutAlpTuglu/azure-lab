@@ -1,13 +1,14 @@
 name: ROS2 Docker Build and Push
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'ws/src/pointcloud_detection/**'
-      - 'ws/pointcloud.Dockerfile'
-      - '.github/workflows/ros_build.yml'
+# this pipeline and code changes get triggered in orchestration-lab repo
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'ws/src/pointcloud_detection/**'
+#       - 'ws/pointcloud.Dockerfile'
+#       - '.github/workflows/ros_build.yml'
 
 env:
   APP_NAME: pointcloud_detection
