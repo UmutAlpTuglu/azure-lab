@@ -1,6 +1,11 @@
-name: Deploy Helm Chart
+name: ROS Helm Deploy AKS
 on:
-  # This time just manual trigger in GitHub UI
+  push:
+    branches:
+      - main
+    paths:
+      - 'ws/src/pointcloud-detection-helm/**'
+      - '.github/workflows/ros_helm_deploy.yml'
   workflow_dispatch:
 
 env:
@@ -56,6 +61,10 @@ jobs:
             --version ${{ steps.chart_version.outputs.version }} \
             --namespace default
 
+      - name: Deploy ROS publisher to test application
+        run: |
+          kubectl apply -f ws/src/ros_pub_sub.yaml
+  
       - name: Verify Deployment
         run: |
           kubectl get pods -n default

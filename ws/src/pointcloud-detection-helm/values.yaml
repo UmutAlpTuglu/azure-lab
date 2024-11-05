@@ -14,9 +14,8 @@ replicaCount: 1
 
 image:
   repository: ut4321/pointcloud_detection # public docker hub registry 
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "latest" # Overrides the image tag whose default is the chart appVersion.
-  tagDefault: "stable" # Sets the default tag which is used if tag is not set explicitly
 
 commandOverride: ["/bin/bash", "-c", "source install/setup.bash && ros2 launch pointcloud_detection pointcloud_detection.launch.py params:=/mounted_config/params.ros2.yaml"] # Overrides the entrypoint of the main container
 argsOverride: [] # Supplies additional arguments to the default or overridden entrypoint

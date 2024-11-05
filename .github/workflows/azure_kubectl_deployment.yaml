@@ -1,4 +1,5 @@
 # insane CI/CD pipeline, pushes to docker registry, creates secrets and deploys via raw yaml to cluster
+# not configured, does not work
 
 on:
   push:

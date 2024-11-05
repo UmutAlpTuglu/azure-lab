@@ -1,4 +1,4 @@
-name: ROS2 Docker Build and Push
+name: ROS2 Docker Build
 on:
   push:
     branches:

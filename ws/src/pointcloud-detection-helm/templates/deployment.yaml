@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name | quote }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.image.tagDefault }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag}}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           {{- with .Values.commandOverride }}
           command: {{ toJson . }}
