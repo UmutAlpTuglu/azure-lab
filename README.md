@@ -77,16 +77,13 @@ In this Repo there is a cheap Azure Kubernetes Service [implementation](terrafor
 
 ## Next steps
 
-- create super cheap AKS cluster via terraform to practice
-- create CI build github actions pipeline which pushes automatically when helm repo is updated to azure container registry
-- configure azure_deployment.yaml to work with ros image
-- configure azure_deployment.yaml to work with helm images which are pushed there by CI helm pipeline
+- optionally implement azure kubectl deployment pipeline, but rather focus on ArgoCD
 - compare CD deployment pipelines to ArgoCD, CI can stay
   - because github actions has no idea what the state of the cluster is, it just deploys but does not know if resource was manually modified or removed
-    - Argo/Flux ensure that the state of cluster matches with repo at all times 
-      - Terraform in comparision is not aware of application health
-        - Flux and Argo are better suited for continuous delivery as they have schedulers to detect changes and drift. For example of someone goes in and scales a deployment from 1 to 2. Flux will go in and change it back. Terraform won't detect this until you apply which in an automated fashion won't happen until the next commit/git trigger configured. 
+    - GitOps (Argo/Flux) ensure that the state of cluster matches with repo at all times 
+      - Terraform also allows for deployment but like pipelines, in comparision to ArgoCD it is not aware of application health
+        - Flux and Argo are better suited for continuous delivery as they have schedulers to detect changes and drift. For example if someone goes in and scales a deployment from 1 to 2. Flux will go in and change it back. Terraform won't detect this until you apply which in an automated fashion won't happen until the next commit/git trigger configured.
 
 - `optimal setup`:
   - github actions for CI pipelines like pushing images and helm packages to docker hub or azure container registry
-  - ArgoCD for managing CD part with 
+  - ArgoCD for managing CD part 
