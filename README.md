@@ -60,6 +60,10 @@ helm pull oci://<REGISTRY_NAME>.azurecr.io/helm/pointcloud-detection-helm --vers
 
 The pipeline combines the first three steps, but before it logs in with [connection-json](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret). Create the needed secrets and the pipeline even fetches the newest chart version. If there are changes to the helm chart, you should change chart version in [Chart.yaml](ws/src/pointcloud-detection-helm/Chart.yaml) so a new package appears in container registry. 
 
+### Infrastructure as Code (IaC)
+
+In this Repo there is a cheap Azure Kubernetes Service [implementation](terraform-aks) via Terraform. The [docs](terraform-aks/README.md) and the implementation contain a basic setup with basic loadbalancer, kubelet networking and the cheapest VM size I found in the azure portal.
+
 
 ## Next steps
 
