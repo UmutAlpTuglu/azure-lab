@@ -56,7 +56,7 @@ jobs:
 
       - name: Deploy Helm Chart
         run: |
-          helm install pointcloud-detection \
+          helm upgrade --install pointcloud-detection \
             oci://${{ secrets.ACR_FULL_NAME }}/helm/pointcloud-detection-helm \
             --version ${{ steps.chart_version.outputs.version }} \
             --namespace default

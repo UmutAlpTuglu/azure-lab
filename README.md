@@ -39,7 +39,11 @@ kubectl logs -f "pod name of ros app"
 
 #### ros_docker_build.yml
 
-- self explanatory: builds the docker ros image and pushes it to a public Docker Hub image registry
+Builds the docker ros image and pushes it to a public Docker Hub image registry.
+> UPDATE: Multi Platform : linux/amd64,linux/arm64
+
+Builds for two platforms because AKS cluster runs on different architecture than my k3d setup on my server. 
+With `image.pullPolicy: Always` in the helm chart, it ensures that always the newest version is downloaded.
 
 #### ros_helm_build.yml
 
@@ -61,6 +65,10 @@ helm pull oci://<REGISTRY_NAME>.azurecr.io/helm/pointcloud-detection-helm --vers
 ```
 
 The pipeline combines the first three steps, but before it logs in with [connection-json](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret). Create the needed secrets and the pipeline even fetches the newest chart version. If there are changes to the helm chart, you should change chart version in [Chart.yaml](ws/src/pointcloud-detection-helm/Chart.yaml) so a new package appears in container registry. 
+
+#### ros_helm_deploy.yml
+
+Fetches newest helm package from ACR and installs it directly to the cluster with the test ros publisher.
 
 ### Infrastructure as Code (IaC)
 
