@@ -1,0 +1,61 @@
+name: Deploy Helm Chart
+on:
+  # This time just manual trigger in GitHub UI
+  workflow_dispatch:
+
+env:
+  HELM_CHART_PATH: ws/src/pointcloud-detection-helm
+  RESOURCE_GROUP: aks-demo-rg
+  CLUSTER_NAME: aks-demo
+
+jobs:
+  deploy-helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4.2.0
+        id: install-helm
+
+      - name: 'Setup kubectl'
+        id: install-kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        uses: azure/aks-set-context@v4
+        with:
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+
+      - name: Get Chart Version
+        id: chart_version
+        run: |
+          CHART_VERSION=$(grep 'version:' ${{ env.HELM_CHART_PATH }}/Chart.yaml | cut -d' ' -f2 | tr -d '\n\r')
+          echo "version=${CHART_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Debug Version
+        run: |
+          echo "Version is: ${{ steps.chart_version.outputs.version }}"
+
+      - name: Helm ACR Login
+        run: |
+          helm registry login ${{ secrets.ACR_FULL_NAME }} \
+            --username ${{ secrets.ACR_PUSH_USERNAME }} \
+            --password ${{ secrets.ACR_PUSH_PASSWORD }}
+
+      - name: Deploy Helm Chart
+        run: |
+          helm install pointcloud-detection \
+            oci://${{ secrets.ACR_FULL_NAME }}/helm/pointcloud-detection-helm \
+            --version ${{ steps.chart_version.outputs.version }} \
+            --namespace default
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods -n default

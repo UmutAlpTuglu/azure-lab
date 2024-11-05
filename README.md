@@ -1,5 +1,7 @@
 # azure-lab
 
+Kubernetes, Helm, ROS related testings in an Azure Cloud environment with focus on pipelines.
+
 ## Prerequisites
 
 If not available already, install the following:
@@ -43,7 +45,7 @@ kubectl logs -f "pod name of ros app"
 
 The goal is to create Azure Container Registry as a registry for Helm charts with the `oci://` scheme. For that first create a container registry with a basic plan (cheapest option). 
 Before deep diving into the pipeline, lets test this setup locally:
-1. The [azure service principal script](azure/ACR_Helm_setup.sh) creates service principal logins which are outputed to the terminal. In the top of the script you can need to set your resource group, registry name in azure and subscription ID and then execute script and then copy ID and password from terminal
+1. The [azure service principal script](azure_scripts/ACR_Helm_setup.sh) creates service principal logins which are outputed to the terminal. In the top of the script you can need to set your resource group, registry name in azure and subscription ID and then execute script and then copy ID and password from terminal
 2. Login to ACR via helm:
 ```shell
 helm registry login <REGISTRY_NAME>.azurecr.io --username <SP_PUSH_ID> --password <SP_PUSH_PASSWORD>
