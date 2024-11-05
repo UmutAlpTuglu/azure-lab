@@ -1,6 +1,4 @@
 # insane CI/CD pipeline, pushes to docker registry, creates secrets and deploys via raw yaml to cluster
-# is not configured yet, need to create azure credentials and set all other secrets in github,
-# and create container registry and super cheap AKS cluster via terraform to practice 
 
 on:
   push:

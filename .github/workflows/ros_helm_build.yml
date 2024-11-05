@@ -6,6 +6,8 @@ on:
     paths:
       - 'ws/src/pointcloud-detection-helm/**'
       - '.github/workflows/ros_helm_build.yml'
+    workflow_dispatch:
+
 env:
   HELM_CHART_PATH: ws/src/pointcloud-detection-helm
 jobs:
